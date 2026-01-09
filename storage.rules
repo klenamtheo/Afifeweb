@@ -1,0 +1,36 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper function
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    // Allow public read access to all objects
+    match /{allPaths=**} {
+      allow read: if true;
+    }
+
+    // Allow upload only for authenticated users (Admins)
+    // Images for News
+    match /news/{imageId} {
+      allow write: if isAdmin() && request.resource.contentType.matches('image/.*');
+    }
+    
+    // Images for Events
+    match /events/{imageId} {
+      allow write: if isAdmin() && request.resource.contentType.matches('image/.*');
+    }
+    
+    // Images for Market
+    match /market/{imageId} {
+      allow write: if isAdmin() && request.resource.contentType.matches('image/.*');
+    }
+    
+    // Images for Projects
+    match /projects/{imageId} {
+      allow write: if isAdmin() && request.resource.contentType.matches('image/.*');
+    }
+  }
+}

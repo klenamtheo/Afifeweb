@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is admin (simplified for now, 
+    // ideally check custom claims or a user document role)
+    function isAdmin() {
+      return request.auth != null; 
+      // WARNING: This allows ANY authenticated user to be admin. 
+      // For production, you must implement properly role-based access control.
+    }
+
+    // Public Collections (Read Public, Write Admin)
+    match /news/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /events/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /market/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /projects/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /directory/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /alerts/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Suggestions (Public Read/Create/Upvote, Admin Delete)
+    match /suggestions/{document=**} {
+      allow read, create: if true;
+      // Allow upvoting (updating the upvotes field)
+      allow update: if true; 
+      allow delete: if isAdmin();
+    }
+
+    // Submissions (Public Create, Admin Read/Update)
+    match /submissions/{document=**} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+    
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
