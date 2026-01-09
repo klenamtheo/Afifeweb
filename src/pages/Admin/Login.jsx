@@ -72,7 +72,7 @@ const Login = () => {
                     </button>
                 </form>
                 <div className="mt-6 text-center">
-                    <a href="/" className="text-sm text-gray-500 hover:text-afife-primary hover:underline">Return to Website</a>
+                    <a href="https://afifeweb.vercel.app/" className="text-sm text-gray-500 hover:text-afife-primary hover:underline">Return to Website</a>
                 </div>
             </div>
         </div>
