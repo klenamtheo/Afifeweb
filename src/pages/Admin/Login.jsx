@@ -4,6 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Loader } from 'lucide-react';
 
+import { getAuthErrorMessage } from '../../utils/errorUtils';
+
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -21,7 +23,7 @@ const Login = () => {
             await login(email, password);
             navigate('/admin/dashboard');
         } catch (err) {
-            setError('Failed to log in: ' + err.message);
+            setError(getAuthErrorMessage(err));
         } finally {
             setLoading(false);
         }

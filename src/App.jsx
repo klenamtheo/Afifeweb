@@ -15,6 +15,7 @@ import EventsDetail from './pages/EventsDetail';
 
 import Directory from './pages/Directory';
 import Suggestions from './pages/Suggestions';
+import JobsAds from './pages/JobsAds';
 
 // Admin Imports
 import Login from './pages/Admin/Login';
@@ -26,9 +27,32 @@ import AdminMarket from './pages/Admin/AdminMarket';
 import AdminProjects from './pages/Admin/AdminProjects';
 import AdminDirectory from './pages/Admin/AdminDirectory';
 import AdminSuggestions from './pages/Admin/AdminSuggestions';
+import AdminMeetings from './pages/Admin/AdminMeetings';
 import AdminAlerts from './pages/Admin/AdminAlerts';
+import AdminUsers from './pages/Admin/AdminUsers';
+import AdminPermits from './pages/Admin/AdminPermits';
+import AdminRequests from './pages/Admin/AdminRequests';
+import AdminPolls from './pages/Admin/AdminPolls';
+import AdminApplications from './pages/Admin/AdminApplications';
 import AdminLayout from './components/AdminLayout';
+
 import ProtectedRoute from './components/ProtectedRoute';
+
+// Portal Imports
+// Portal Imports
+import PortalLogin from './pages/Portal/Login';
+import PortalRegister from './pages/Portal/Register';
+import PortalDashboard from './pages/Portal/Dashboard';
+import PortalAlerts from './pages/Portal/Alerts';
+import PortalMeetings from './pages/Portal/Meetings';
+import PortalPolls from './pages/Portal/Polls';
+import PortalForms from './pages/Portal/Forms';
+import PortalPermits from './pages/Portal/Permits';
+import PortalReports from './pages/Portal/Reports';
+import PortalRequests from './pages/Portal/Requests';
+import PortalProfile from './pages/Portal/Profile';
+import NativeLayout from './components/NativeLayout';
+import NativeRoute from './components/NativeRoute';
 
 // Components
 import Navbar from './components/Navbar';
@@ -74,6 +98,7 @@ function App() {
                 <Route path="/news/:id" element={<NewsDetail />} />
                 <Route path="/events" element={<Events />} />
                 <Route path="/events/:id" element={<EventsDetail />} />
+                <Route path="/jobs" element={<JobsAds />} />
               </Route>
             )}
 
@@ -96,10 +121,38 @@ function App() {
                   <Route path="projects" element={<AdminProjects />} />
                   <Route path="directory" element={<AdminDirectory />} />
                   <Route path="suggestions" element={<AdminSuggestions />} />
+                  <Route path="meetings" element={<AdminMeetings />} />
                   <Route path="alerts" element={<AdminAlerts />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="permits" element={<AdminPermits />} />
+                  <Route path="polls" element={<AdminPolls />} />
+                  <Route path="requests" element={<AdminRequests />} />
+                  <Route path="applications" element={<AdminApplications />} />
                 </Route>
               </Route>
+
             )}
+
+            {/* Portal Routes */}
+            <Route path="/portal/login" element={<PortalLogin />} />
+            <Route path="/portal/register" element={<PortalRegister />} />
+
+            <Route path="/portal" element={
+              <NativeRoute>
+                <NativeLayout />
+              </NativeRoute>
+            }>
+              <Route index element={<PortalDashboard />} />
+              <Route path="dashboard" element={<PortalDashboard />} />
+              <Route path="alerts" element={<PortalAlerts />} />
+              <Route path="meetings" element={<PortalMeetings />} />
+              <Route path="forms" element={<PortalForms />} />
+              <Route path="permits" element={<PortalPermits />} />
+              <Route path="reports" element={<PortalReports />} />
+              <Route path="requests" element={<PortalRequests />} />
+              <Route path="polls" element={<PortalPolls />} />
+              <Route path="profile" element={<PortalProfile />} />
+            </Route>
 
             {/* Fallback for Mode mismatch */}
             {(isAdminBuild || isPublicBuild) && (

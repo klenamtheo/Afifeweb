@@ -1,15 +1,151 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap');
 
+:root {
+  --bg-main: #f9fafb;
+  --bg-surface: #ffffff;
+  --bg-surface-rgb: 255, 255, 255;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --text-bold: #1f2937;
+  --border-color: #f3f4f6;
+  --sidebar-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
+  --input-bg: #ffffff;
+  font-family: 'Outfit', sans-serif;
+}
+
+.dark-theme {
+  --bg-main: #030712;
+  --bg-surface: #111827;
+  --bg-surface-rgb: 17, 24, 39;
+  --text-main: #f9fafb;
+  --text-muted: #9ca3af;
+  --text-bold: #f3f4f6;
+  --border-color: #1f2937;
+  --sidebar-shadow: 10px 0 40px rgba(0, 0, 0, 0.4);
+  --input-bg: #1f2937;
+  color-scheme: dark;
+}
+
+.animate-spin-slow {
+  animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply font-sans antialiased bg-gray-50 text-gray-900;
+    @apply font-sans antialiased;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    transition: background-color 0.4s ease, color 0.4s ease;
+  }
+
+  /* Universal Dark Mode Overrides */
+  .dark-theme .bg-white {
+    background-color: var(--bg-surface) !important;
+  }
+
+  .dark-theme .bg-gray-50,
+  .dark-theme .bg-afife-bg {
+    background-color: var(--bg-main) !important;
+  }
+
+  /* Specific text color mapping for readability */
+  .dark-theme .text-gray-900,
+  .dark-theme .text-gray-800,
+  .dark-theme .text-gray-700 {
+    color: var(--text-main) !important;
+  }
+
+  .dark-theme .text-gray-600,
+  .dark-theme .text-gray-500,
+  .dark-theme .text-gray-400:not(.uppercase) {
+    color: var(--text-muted) !important;
+  }
+
+  .dark-theme .border-gray-100,
+  .dark-theme .border-gray-50,
+  .dark-theme .border-gray-200 {
+    border-color: var(--border-color) !important;
+  }
+
+  /* Card and Sidebar shadow adjustments */
+  .dark-theme .shadow-sm,
+  .dark-theme .shadow-md,
+  .dark-theme .shadow-lg,
+  .dark-theme .shadow-xl,
+  .dark-theme .shadow-2xl {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  /* Input fields in dark mode */
+  .dark-theme input,
+  .dark-theme textarea,
+  .dark-theme select {
+    background-color: var(--input-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+  }
+
+  /* List and hover items */
+  .dark-theme .hover\:bg-gray-50:hover,
+  .dark-theme .hover\:bg-gray-100:hover,
+  .dark-theme .hover\:bg-gray-200:hover {
+    background-color: rgba(255, 255, 255, 0.03) !important;
   }
 }
 
-:root {
-  font-family: 'Outfit', sans-serif;
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-200 rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-300;
+  }
+
+  .dark-theme .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #374151;
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 20s linear infinite;
+  min-width: 100%;
+}
+
+.pause-on-hover:hover {
+  animation-play-state: paused;
 }

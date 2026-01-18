@@ -27,9 +27,10 @@ const Submissions = () => {
     const getTypeColor = (type) => {
         switch (type) {
             case 'contact_concern': return 'bg-blue-100 text-blue-800';
-            case 'skills_connect': return 'bg-green-100 text-green-800';
+            case 'skills_connect': return 'bg-purple-100 text-purple-800';
             case 'report_infrastructure': return 'bg-red-100 text-red-800';
             case 'suggest_idea': return 'bg-yellow-100 text-yellow-800';
+            case 'native_report': return 'bg-orange-100 text-orange-800';
             default: return 'bg-gray-100 text-gray-800';
         }
     };
@@ -40,6 +41,7 @@ const Submissions = () => {
             case 'skills_connect': return 'Skills Registration';
             case 'report_infrastructure': return 'Infrastructure Report';
             case 'suggest_idea': return 'Idea Suggestion';
+            case 'native_report': return 'Citizen Issue Report';
             default: return type;
         }
     };
@@ -102,6 +104,13 @@ const Submissions = () => {
                                             <p className="text-gray-600 bg-gray-50 p-4 rounded-lg md:text-sm leading-relaxed">{item.details}</p>
                                         </>
                                     )}
+                                    {item.type === 'native_report' && (
+                                        <>
+                                            <h4 className="font-bold text-lg mb-1 flex items-center gap-2">Issue: {item.issueType}</h4>
+                                            <p className="text-gray-600 mb-2"><span className="font-bold">Location:</span> {item.location}</p>
+                                            <p className="text-gray-600 bg-gray-50 p-4 rounded-lg md:text-sm leading-relaxed">{item.description}</p>
+                                        </>
+                                    )}
                                     {item.type === 'skills_connect' && (
                                         <div>
                                             <div className="flex flex-wrap gap-2 mb-2">
@@ -116,24 +125,24 @@ const Submissions = () => {
 
                                 <div className="border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6">
                                     <h5 className="font-bold text-gray-400 text-xs uppercase mb-3 text-center md:text-left">Contact Details</h5>
-                                    {item.name && (
+                                    {(item.name || item.reporterName) && (
                                         <div className="flex items-center gap-3 mb-2">
                                             <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
                                                 <User size={16} />
                                             </div>
                                             <div>
-                                                <span className="block text-sm font-bold text-gray-800">{item.name}</span>
+                                                <span className="block text-sm font-bold text-gray-800">{item.name || item.reporterName}</span>
                                                 <span className="block text-xs text-gray-500">Name</span>
                                             </div>
                                         </div>
                                     )}
-                                    {item.contact ? (
+                                    {(item.contact || item.reporterEmail) ? (
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
                                                 <Tag size={16} />
                                             </div>
                                             <div>
-                                                <span className="block text-sm font-bold text-gray-800">{item.contact}</span>
+                                                <span className="block text-sm font-bold text-gray-800">{item.contact || item.reporterEmail}</span>
                                                 <span className="block text-xs text-gray-500">Contact Info</span>
                                             </div>
                                         </div>

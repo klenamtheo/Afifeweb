@@ -1,5 +1,5 @@
 
-import { Users, FileText, Calendar, ShoppingBag, Briefcase, MessageSquare, TrendingUp, Loader } from 'lucide-react';
+import { Users, FileText, Calendar, ShoppingBag, Briefcase, MessageSquare, TrendingUp, Loader, Megaphone } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { db } from '../../firebase';
 import { collection, getCountFromServer, query, orderBy, limit, getDocs, onSnapshot } from 'firebase/firestore';
@@ -11,7 +11,9 @@ const Dashboard = () => {
         news: 0,
         events: 0,
         market: 0,
-        projects: 0
+        projects: 0,
+        jobs: 0,
+        adverts: 0
     });
     const [activities, setActivities] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -19,55 +21,77 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch Stats
-                const [subSnap, newsSnap, eventsSnap, marketSnap, projectsSnap] = await Promise.all([
-                    getCountFromServer(collection(db, 'submissions')),
-                    getCountFromServer(collection(db, 'news')),
-                    getCountFromServer(collection(db, 'events')),
-                    getCountFromServer(collection(db, 'market')),
-                    getCountFromServer(collection(db, 'projects'))
+                // Fetch Stats with individual error handling to prevent 403s from breaking the dashboard
+                const getCount = async (colName) => {
+                    try {
+                        const snap = await getCountFromServer(collection(db, colName));
+                        return snap.data().count;
+                    } catch (err) {
+                        console.warn(`Could not fetch count for ${colName}:`, err.message);
+                        return 0; // Fallback to 0 if permission denied or other error
+                    }
+                };
+
+                const [submissions, news, events, market, projects, jobs, adverts] = await Promise.all([
+                    getCount('submissions'),
+                    getCount('news'),
+                    getCount('events'),
+                    getCount('market'),
+                    getCount('projects'),
+                    getCount('jobs'),
+                    getCount('adverts')
                 ]);
 
                 setStats({
-                    submissions: subSnap.data().count,
-                    news: newsSnap.data().count,
-                    events: eventsSnap.data().count,
-                    market: marketSnap.data().count,
-                    projects: projectsSnap.data().count
+                    submissions,
+                    news,
+                    events,
+                    market,
+                    projects,
+                    jobs,
+                    adverts
                 });
 
                 // Real-time Activity Listeners
-                const collections = ['news', 'events', 'market', 'projects', 'submissions', 'alerts'];
+                const collections = ['news', 'events', 'market', 'projects', 'submissions', 'alerts', 'jobs', 'adverts', 'job_applications'];
                 const activityTypes = {
                     news: { label: 'News', icon: <FileText size={14} />, color: 'text-green-600', bg: 'bg-green-50' },
                     events: { label: 'Event', icon: <Calendar size={14} />, color: 'text-purple-600', bg: 'bg-purple-50' },
                     market: { label: 'Market', icon: <ShoppingBag size={14} />, color: 'text-yellow-600', bg: 'bg-yellow-50' },
                     projects: { label: 'Project', icon: <Briefcase size={14} />, color: 'text-blue-600', bg: 'bg-blue-50' },
                     submissions: { label: 'Submission', icon: <MessageSquare size={14} />, color: 'text-orange-600', bg: 'bg-orange-50' },
-                    alerts: { label: 'Alert', icon: <TrendingUp size={14} />, color: 'text-red-600', bg: 'bg-red-50' }
+                    alerts: { label: 'Alert', icon: <TrendingUp size={14} />, color: 'text-red-600', bg: 'bg-red-50' },
+                    jobs: { label: 'Job', icon: <Briefcase size={14} />, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+                    adverts: { label: 'Advert', icon: <Megaphone size={14} />, color: 'text-pink-600', bg: 'bg-pink-50' },
+                    job_applications: { label: 'Application', icon: <Users size={14} />, color: 'text-cyan-600', bg: 'bg-cyan-50' }
                 };
 
                 const currentActivities = {};
 
                 const unsubscribers = collections.map(colName => {
                     const q = query(collection(db, colName), orderBy('createdAt', 'desc'), limit(5));
-                    return onSnapshot(q, (snap) => {
-                        currentActivities[colName] = snap.docs.map(doc => ({
-                            id: doc.id,
-                            ...doc.data(),
-                            type: colName,
-                            activityInfo: activityTypes[colName]
-                        }));
+                    return onSnapshot(q,
+                        (snap) => {
+                            currentActivities[colName] = snap.docs.map(doc => ({
+                                id: doc.id,
+                                ...doc.data(),
+                                type: colName,
+                                activityInfo: activityTypes[colName]
+                            }));
 
-                        // Flatten and sort whenever any collection updates
-                        const allActivities = Object.values(currentActivities).flat();
-                        const sortedActivities = allActivities
-                            .filter(a => a.createdAt && typeof a.createdAt.toDate === 'function')
-                            .sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate())
-                            .slice(0, 10);
+                            // Flatten and sort whenever any collection updates
+                            const allActivities = Object.values(currentActivities).flat();
+                            const sortedActivities = allActivities
+                                .filter(a => a.createdAt && typeof a.createdAt.toDate === 'function')
+                                .sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate())
+                                .slice(0, 10);
 
-                        setActivities(sortedActivities);
-                    });
+                            setActivities(sortedActivities);
+                        },
+                        (err) => {
+                            console.error(`Listener error for ${colName}:`, err.message);
+                        }
+                    );
                 });
 
                 return () => unsubscribers.forEach(unsub => unsub());
@@ -86,10 +110,12 @@ const Dashboard = () => {
     }, []);
 
     const statCards = [
-        { title: 'Total Submissions', count: stats.submissions, icon: <MessageSquare size={24} />, color: 'bg-blue-500' },
-        { title: 'News Articles', count: stats.news, icon: <FileText size={24} />, color: 'bg-green-500' },
-        { title: 'Upcoming Events', count: stats.events, icon: <Calendar size={24} />, color: 'bg-purple-500' },
+        { title: 'Inquiries', count: stats.submissions, icon: <MessageSquare size={24} />, color: 'bg-blue-500' },
+        { title: 'Jobs', count: stats.jobs, icon: <Briefcase size={24} />, color: 'bg-indigo-500' },
+        { title: 'Active Ads', count: stats.adverts, icon: <Megaphone size={24} />, color: 'bg-pink-500' },
+        { title: 'Events', count: stats.events, icon: <Calendar size={24} />, color: 'bg-purple-500' },
         { title: 'Market Items', count: stats.market, icon: <ShoppingBag size={24} />, color: 'bg-yellow-500' },
+        { title: 'News', count: stats.news, icon: <FileText size={24} />, color: 'bg-green-500' },
     ];
 
     return (

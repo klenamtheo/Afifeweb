@@ -4,10 +4,20 @@ service cloud.firestore {
     
     // Helper function to check if user is admin (simplified for now, 
     // ideally check custom claims or a user document role)
+    // Helper function to check if user is admin
+    // LOGIC: Existing Admins don't have a 'users' doc. Natives DO.
+    // So if you are authenticated AND (don't have a user doc OR your user doc is not native), you are Admin.
+    // Helper function to check if user is admin
     function isAdmin() {
-      return request.auth != null; 
-      // WARNING: This allows ANY authenticated user to be admin. 
-      // For production, you must implement properly role-based access control.
+      return request.auth != null && (
+        request.auth.token.email == 'klenamtheophilus@gmail.com' ||
+        request.auth.token.email == 'afifetownweb@gmail.com'
+      );
+    }
+    
+    // Helper to check if the user is the owner of the data
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
     }
 
     // Public Collections (Read Public, Write Admin)
@@ -41,6 +51,33 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /meetings/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Native Users Collection
+    match /users/{userId} {
+      allow create: if isOwner(userId);
+      // Explicitly allow owner read without isAdmin check to prevent potential circular logic or overhead
+      allow read: if isOwner(userId) || isAdmin();
+      allow update: if isOwner(userId) || isAdmin();
+    }
+
+    // Permits (User owns, Admin manages)
+    match /permits/{document=**} {
+      allow create: if isOwner(request.resource.data.userId);
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow update: if isAdmin();
+    }
+
+    // Requests (Chat) (User owns, Admin manages)
+    match /requests/{document=**} {
+      allow create: if isOwner(request.resource.data.userId) || isAdmin();
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow update: if isOwner(resource.data.userId) || isAdmin();
+    }
+
     // Suggestions (Public Read/Create/Upvote, Admin Delete)
     match /suggestions/{document=**} {
       allow read, create: if true;
@@ -53,6 +90,40 @@ service cloud.firestore {
     match /submissions/{document=**} {
       allow create: if true;
       allow read, update, delete: if isAdmin();
+    }
+
+    // Portal Activities (User owns, Admin Read)
+    match /portal_activities/{document=**} {
+      allow create: if request.auth != null;
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+    }
+
+    // Jobs and Adverts (Public Read, Admin Manage)
+    match /jobs/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /adverts/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Job Applications (User creates, Admin manages)
+    match /job_applications/{document=**} {
+      allow create: if true;
+      allow read, write: if isAdmin();
+    }
+
+    // Community Polls
+    match /polls/{pollId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if isAdmin();
+
+      match /votes/{userId} {
+        allow create, update: if isOwner(userId);
+        allow read: if isAdmin() || isOwner(userId);
+      }
     }
     
     // Default Deny

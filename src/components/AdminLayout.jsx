@@ -1,13 +1,17 @@
 
 import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FileText, Calendar, ShoppingBag, Briefcase, MessageSquare, LogOut, Menu, X, Phone, Bell } from 'lucide-react';
+import { LayoutDashboard, FileText, Calendar, ShoppingBag, Briefcase, MessageSquare, LogOut, Menu, X, Phone, Bell, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { db } from '../firebase';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
 const AdminLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Default closed for mobile first approach, effect will open for desktop
     const { logout } = useAuth();
     const navigate = useNavigate();
+
+    const [pendingApps, setPendingApps] = useState(0);
 
     useEffect(() => {
         const handleResize = () => {
@@ -23,6 +27,14 @@ const AdminLayout = () => {
 
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    useEffect(() => {
+        const q = query(collection(db, 'job_applications'), where('status', '==', 'pending'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setPendingApps(snapshot.docs.length);
+        });
+        return () => unsubscribe();
     }, []);
 
     const handleLogout = async () => {
@@ -44,6 +56,12 @@ const AdminLayout = () => {
         { path: '/admin/suggestions', name: "Voice Board", icon: <MessageSquare size={20} /> },
         { path: '/admin/alerts', name: 'Announcements', icon: <Bell size={20} /> },
         { path: '/admin/submissions', name: 'Submissions', icon: <MessageSquare size={20} /> },
+        { path: '/admin/meetings', name: 'Meetings', icon: <Calendar size={20} /> },
+        { path: '/admin/users', name: 'Native Users', icon: <User size={20} /> },
+        { path: '/admin/permits', name: 'Permit Apps', icon: <FileText size={20} /> },
+        { path: '/admin/requests', name: 'Support Requests', icon: <MessageSquare size={20} /> },
+        { path: '/admin/polls', name: 'Community Polls', icon: <FileText size={20} /> },
+        { path: '/admin/applications', name: 'Job Applications', icon: <Briefcase size={20} /> },
     ];
 
     return (
@@ -69,6 +87,11 @@ const AdminLayout = () => {
                         >
                             {item.icon}
                             <span>{item.name}</span>
+                            {item.name === 'Job Applications' && pendingApps > 0 && (
+                                <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-sm animate-pulse">
+                                    {pendingApps}
+                                </span>
+                            )}
                         </NavLink>
                     ))}
                 </nav>

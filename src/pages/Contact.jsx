@@ -41,12 +41,7 @@ const Contact = () => {
     };
 
     return (
-        <div className="bg-afife-bg min-h-screen">
-            <section className="bg-afife-primary text-white py-16 text-center">
-                <h1 className="font-heading text-4xl font-bold mb-4">Contact & Support</h1>
-                <p className="text-xl opacity-90">We are here to listen and help.</p>
-            </section>
-
+        <div className="bg-afife-bg min-h-screen pt-24">
             <section className="container mx-auto px-4 py-12">
                 <div className="flex flex-col lg:flex-row gap-12">
 
@@ -167,6 +162,22 @@ const Contact = () => {
                         )}
                     </div>
                 </div>
+            </section>
+
+            {/* Map Section */}
+            <section className="h-[400px] w-full relative z-0">
+                <iframe
+                    width="100%"
+                    height="100%"
+                    id="gmap_canvas"
+                    src="https://maps.google.com/maps?q=Afife%2C%20Ketu%20North%20Municipal%2C%20Volta%20Region%2C%20Ghana&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                    frameBorder="0"
+                    scrolling="no"
+                    marginHeight="0"
+                    marginWidth="0"
+                    title="Afife Location Map"
+                    className="filter grayscale-[20%] hover:grayscale-0 transition-all duration-500"
+                ></iframe>
             </section>
         </div>
     );
