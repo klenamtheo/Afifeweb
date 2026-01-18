@@ -3,7 +3,11 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
-    const { currentUser, userProfile } = useAuth();
+    const { currentUser, userProfile, loading } = useAuth();
+
+    if (loading) {
+        return null; // Or a loading spinner if preferred, but null is usually safe for route transitions
+    }
 
     if (!currentUser) {
         return <Navigate to="/admin/login" />;

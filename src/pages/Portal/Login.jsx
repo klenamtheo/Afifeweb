@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Lock, Mail, Loader, ArrowLeft, Eye, EyeOff } from 'lucide-react';
@@ -13,8 +13,19 @@ const Login = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const { login } = useAuth();
+    const { login, currentUser, userProfile } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (currentUser && userProfile) {
+            if (userProfile.role === 'native') {
+                navigate('/portal/dashboard');
+            } else if (currentUser.email === 'afifetownweb@gmail.com') {
+                navigate('/admin/dashboard');
+            }
+        }
+    }, [currentUser, userProfile, navigate]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -22,11 +33,10 @@ const Login = () => {
 
         try {
             await login(email, password);
-            navigate('/portal/dashboard');
+            // Redirection is handled by the useEffect above
         } catch (err) {
             setError(getAuthErrorMessage(err));
             console.error(err);
-        } finally {
             setLoading(false);
         }
     };

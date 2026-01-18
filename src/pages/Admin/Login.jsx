@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Loader } from 'lucide-react';
@@ -11,8 +11,14 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const { login, currentUser } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (currentUser) {
+            navigate('/admin/dashboard');
+        }
+    }, [currentUser, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -21,10 +27,9 @@ const Login = () => {
 
         try {
             await login(email, password);
-            navigate('/admin/dashboard');
+            // Redirection is handled by the useEffect above
         } catch (err) {
             setError(getAuthErrorMessage(err));
-        } finally {
             setLoading(false);
         }
     };
