@@ -265,13 +265,13 @@ const Home = () => {
             <section className="py-20 bg-gray-50">
                 <div className="container mx-auto px-4">
                     {/* Tab Navigation */}
-                    <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
                         <div>
                             <span className="text-afife-secondary font-bold uppercase tracking-wider text-sm">Discover Afife</span>
                             <h2 className="font-heading text-4xl font-bold text-afife-accent mt-2">Community Hub</h2>
                         </div>
 
-                        <div className="flex bg-white p-1.5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div className="flex bg-white p-1.5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 w-full md:w-auto overflow-x-auto">
                             <button
                                 onClick={() => setActiveTab('news')}
                                 className={`px-6 py-3 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'news' ? 'bg-afife-primary text-white shadow-md' : 'text-gray-500 hover:text-afife-primary hover:bg-gray-50'}`}
@@ -330,7 +330,7 @@ const Home = () => {
                                                             <img
                                                                 src={news[currentNewsIndex].imageUrl}
                                                                 alt={news[currentNewsIndex].title}
-                                                                className="w-full h-full object-cover"
+                                                                className="w-full h-full object-contain"
                                                             />
                                                         ) : (
                                                             <div className="w-full h-full flex items-center justify-center text-gray-300">
