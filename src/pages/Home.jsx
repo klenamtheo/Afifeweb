@@ -414,7 +414,7 @@ const Home = () => {
                                                             <img
                                                                 src={events[currentEventIndex].imageUrl}
                                                                 alt={events[currentEventIndex].title}
-                                                                className="w-full h-full object-cover"
+                                                                className="w-full h-full object-contain"
                                                             />
                                                         </div>
                                                     )}
@@ -505,7 +505,7 @@ const Home = () => {
                                                         <img
                                                             src={item.imageUrl}
                                                             alt={item.name}
-                                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                                            className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
                                                         />
                                                         <div className="absolute top-2 right-2">
                                                             <span className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-[10px] font-black text-afife-primary shadow-sm uppercase">
