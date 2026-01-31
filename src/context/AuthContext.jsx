@@ -49,6 +49,47 @@ export const AuthProvider = ({ children }) => {
         };
     }, []);
 
+    // Auto-logout after 20 minutes of inactivity (admin only)
+    useEffect(() => {
+        if (!currentUser || !userProfile || userProfile.role !== 'admin') {
+            return;
+        }
+
+        const INACTIVITY_LIMIT = 20 * 60 * 1000; // 20 minutes in milliseconds
+        let inactivityTimer;
+
+        const resetTimer = () => {
+            if (inactivityTimer) {
+                clearTimeout(inactivityTimer);
+            }
+            inactivityTimer = setTimeout(() => {
+                console.log('Auto-logout due to inactivity');
+                logout();
+            }, INACTIVITY_LIMIT);
+        };
+
+        // Activity events to monitor
+        const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'];
+
+        // Attach event listeners
+        events.forEach(event => {
+            window.addEventListener(event, resetTimer);
+        });
+
+        // Initialize the timer
+        resetTimer();
+
+        // Cleanup
+        return () => {
+            if (inactivityTimer) {
+                clearTimeout(inactivityTimer);
+            }
+            events.forEach(event => {
+                window.removeEventListener(event, resetTimer);
+            });
+        };
+    }, [currentUser, userProfile]);
+
     const login = (email, password) => {
         return signInWithEmailAndPassword(auth, email, password);
     };

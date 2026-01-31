@@ -1,15 +1,18 @@
-import { AlertTriangle, Lightbulb, CheckCircle, Loader } from 'lucide-react';
+import { AlertTriangle, Lightbulb, CheckCircle, Loader, Image as ImageIcon } from 'lucide-react';
 import { useState } from 'react';
 import { submitFormToFirestore } from '../services/formService';
+import { uploadImage } from '../services/imageService';
 
 const Report = () => {
     // Infrastructure Report State
     const [reportData, setReportData] = useState({
         issueType: 'Roads',
         location: '',
-        description: ''
+        description: '',
+        imageUrl: ''
     });
     const [reportStatus, setReportStatus] = useState('idle');
+    const [uploading, setUploading] = useState(false);
 
     // Suggestion State
     const [ideaData, setIdeaData] = useState({
@@ -22,6 +25,22 @@ const Report = () => {
     const handleReportChange = (e) => setReportData({ ...reportData, [e.target.name]: e.target.value });
     const handleIdeaChange = (e) => setIdeaData({ ...ideaData, [e.target.name]: e.target.value });
 
+    const handleReportImageChange = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setUploading(true);
+            try {
+                const url = await uploadImage(file, 'reports');
+                setReportData(prev => ({ ...prev, imageUrl: url }));
+            } catch (err) {
+                console.error('Upload failed:', err);
+                alert('Image upload failed. You can still submit without an image.');
+            } finally {
+                setUploading(false);
+            }
+        }
+    };
+
     const handleReportSubmit = async (e) => {
         e.preventDefault();
         setReportStatus('submitting');
@@ -31,7 +50,7 @@ const Report = () => {
         });
         if (result.success) {
             setReportStatus('success');
-            setReportData({ issueType: 'Roads', location: '', description: '' });
+            setReportData({ issueType: 'Roads', location: '', description: '', imageUrl: '' });
         } else {
             setReportStatus('error');
         }
@@ -104,6 +123,32 @@ const Report = () => {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                                     <textarea rows="3" name="description" value={reportData.description} onChange={handleReportChange} required className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-red-500 outline-none"></textarea>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Attach Photo (Optional)</label>
+                                    <div className="space-y-3">
+                                        <div className="flex items-center gap-4">
+                                            <div className="relative w-20 h-20 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+                                                {reportData.imageUrl ? (
+                                                    <img src={reportData.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                        <ImageIcon size={28} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex-1">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleReportImageChange}
+                                                    disabled={uploading}
+                                                    className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-600 hover:file:bg-red-100 disabled:opacity-50"
+                                                />
+                                                {uploading && <p className="text-xs text-gray-500 mt-1">Uploading...</p>}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <button type="submit" disabled={reportStatus === 'submitting'} className="w-full py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2">
                                     {reportStatus === 'submitting' ? <><Loader className="animate-spin" size={18} /> Sending...</> : 'Report Issue'}

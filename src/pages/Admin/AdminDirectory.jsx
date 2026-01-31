@@ -15,6 +15,7 @@ import { Plus, Search, Phone, MapPin, Trash2, Edit2, X, Image as ImageIcon, Load
 import { motion, AnimatePresence } from 'framer-motion';
 import ConfirmModal from '../../components/ConfirmModal';
 import { useToast } from '../../context/ToastContext';
+import { uploadImage } from '../../services/imageService';
 
 const AdminDirectory = () => {
     const [listings, setListings] = useState([]);
@@ -54,6 +55,23 @@ const AdminDirectory = () => {
         });
         return () => unsubscribe();
     }, []);
+
+    const handleImageChange = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setLoading(true);
+            try {
+                const url = await uploadImage(file, 'directory');
+                setFormData(prev => ({ ...prev, imageUrl: url }));
+                success("Image uploaded successfully!");
+            } catch (err) {
+                console.error("Upload failed:", err);
+                error("Image upload failed. You can still paste a manual URL.");
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -222,17 +240,41 @@ const AdminDirectory = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Business Photo URL (Workaround)</label>
-                                    <div className="flex gap-4">
-                                        <div className="flex-1 relative">
-                                            <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                                            <input
-                                                type="url"
-                                                value={formData.imageUrl}
-                                                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                                                className="w-full p-4 pl-12 border border-gray-100 bg-gray-50 rounded-xl"
-                                                placeholder="Paste image link here"
-                                            />
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Business Photo</label>
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="relative w-16 h-16 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+                                                {formData.imageUrl ? (
+                                                    <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                        <ImageIcon size={24} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-xs text-gray-500 mb-1 font-medium">Upload File</p>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleImageChange}
+                                                    className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-afife-primary/10 file:text-afife-primary hover:file:bg-afife-primary/20"
+                                                    disabled={loading}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500 mb-1 font-medium italic">OR Paste Image URL</p>
+                                            <div className="relative">
+                                                <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                                <input
+                                                    type="url"
+                                                    value={formData.imageUrl}
+                                                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                                                    className="w-full p-4 pl-12 border border-gray-100 bg-gray-50 rounded-xl focus:ring-2 focus:ring-afife-primary outline-none"
+                                                    placeholder="Paste image link here"
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

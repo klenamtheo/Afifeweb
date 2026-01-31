@@ -73,7 +73,7 @@ const Home = () => {
 
         const queries = {
             alerts: query(collection(db, 'alerts'), where('active', '==', true), orderBy('createdAt', 'desc')),
-            news: query(collection(db, 'news'), orderBy('createdAt', 'desc'), limit(3)),
+            news: query(collection(db, 'news'), orderBy('createdAt', 'desc')),
             events: query(collection(db, 'events'), orderBy('date', 'asc'), limit(3)),
             projects: query(collection(db, 'projects'), orderBy('createdAt', 'desc'), limit(3)),
             market: query(collection(db, 'market'), orderBy('createdAt', 'desc'), limit(4)),

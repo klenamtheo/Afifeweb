@@ -96,6 +96,16 @@ const Submissions = () => {
                                             <h4 className="font-bold text-lg mb-1 flex items-center gap-2">Issue: {item.issueType}</h4>
                                             <p className="text-gray-600 mb-2"><span className="font-bold">Location:</span> {item.location}</p>
                                             <p className="text-gray-600 bg-gray-50 p-4 rounded-lg md:text-sm leading-relaxed">{item.description}</p>
+                                            {item.imageUrl && (
+                                                <div className="mt-4">
+                                                    <p className="text-xs font-bold text-gray-500 mb-2">ATTACHED IMAGE</p>
+                                                    <img
+                                                        src={item.imageUrl}
+                                                        alt="Infrastructure issue"
+                                                        className="w-full max-h-64 object-cover rounded-lg border border-gray-200"
+                                                    />
+                                                </div>
+                                            )}
                                         </>
                                     )}
                                     {item.type === 'suggest_idea' && (
@@ -109,6 +119,16 @@ const Submissions = () => {
                                             <h4 className="font-bold text-lg mb-1 flex items-center gap-2">Issue: {item.issueType}</h4>
                                             <p className="text-gray-600 mb-2"><span className="font-bold">Location:</span> {item.location}</p>
                                             <p className="text-gray-600 bg-gray-50 p-4 rounded-lg md:text-sm leading-relaxed">{item.description}</p>
+                                            {item.imageUrl && (
+                                                <div className="mt-4">
+                                                    <p className="text-xs font-bold text-gray-500 mb-2">ATTACHED IMAGE</p>
+                                                    <img
+                                                        src={item.imageUrl}
+                                                        alt="Reported issue"
+                                                        className="w-full max-h-64 object-cover rounded-lg border border-gray-200"
+                                                    />
+                                                </div>
+                                            )}
                                         </>
                                     )}
                                     {item.type === 'skills_connect' && (

@@ -55,11 +55,21 @@ const AdminNews = () => {
         setIsModalOpen(true);
     };
 
-    const handleImageChange = (e) => {
+    const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            setImageFile(file);
+            setUploading(true);
             setImagePreview(URL.createObjectURL(file));
+            try {
+                const url = await uploadImage(file, 'news');
+                setFormData(prev => ({ ...prev, imageUrl: url }));
+                success("Image uploaded successfully!");
+            } catch (err) {
+                console.error("Upload failed:", err);
+                error("Image upload failed. You can still paste a manual URL.");
+            } finally {
+                setUploading(false);
+            }
         }
     };
 
@@ -68,17 +78,6 @@ const AdminNews = () => {
         setUploading(true);
         try {
             let finalImageUrl = formData.imageUrl;
-
-            if (imageFile) {
-                try {
-                    finalImageUrl = await uploadImage(imageFile, 'news');
-                } catch (uploadError) {
-                    console.error("Upload failed (expected on free tier):", uploadError);
-                    error("Image upload failed (Firebase Storage requires upgrade). Please paste a Direct Image URL instead.");
-                    setUploading(false);
-                    return;
-                }
-            }
 
             const dataToSave = {
                 ...formData,
@@ -252,6 +251,7 @@ const AdminNews = () => {
                                                     accept="image/*"
                                                     onChange={handleImageChange}
                                                     className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-afife-primary/10 file:text-afife-primary hover:file:bg-afife-primary/20"
+                                                    disabled={uploading}
                                                 />
                                             </div>
                                         </div>
