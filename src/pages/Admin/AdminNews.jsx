@@ -13,6 +13,7 @@ const AdminNews = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentPost, setCurrentPost] = useState(null); // If null, adding new. If object, editing.
     const [uploading, setUploading] = useState(false);
+    const [saving, setSaving] = useState(false);
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [formData, setFormData] = useState({
@@ -75,7 +76,7 @@ const AdminNews = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setUploading(true);
+        setSaving(true);
         try {
             let finalImageUrl = formData.imageUrl;
 
@@ -100,7 +101,7 @@ const AdminNews = () => {
             console.error("Error saving news: ", error);
             error("Failed to save article.");
         } finally {
-            setUploading(false);
+            setSaving(false);
         }
     };
 
@@ -298,16 +299,16 @@ const AdminNews = () => {
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
                                     className="px-6 py-2 text-gray-500 font-bold hover:bg-gray-100 rounded-lg transition-colors"
-                                    disabled={uploading}
+                                    disabled={uploading || saving}
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     className="px-6 py-2 bg-afife-primary text-white font-bold rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-                                    disabled={uploading}
+                                    disabled={saving}
                                 >
-                                    {uploading ? (
+                                    {saving ? (
                                         <>
                                             <Loader size={18} className="animate-spin" /> Saving...
                                         </>
