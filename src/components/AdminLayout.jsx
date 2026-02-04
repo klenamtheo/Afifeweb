@@ -5,6 +5,7 @@ import { LayoutDashboard, FileText, Calendar, ShoppingBag, Briefcase, MessageSqu
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import NotificationCenter from './NotificationCenter';
 
 const AdminLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Default closed for mobile first approach, effect will open for desktop
@@ -111,6 +112,7 @@ const AdminLayout = () => {
                         <Menu size={24} />
                     </button>
                     <div className="flex items-center gap-4">
+                        <NotificationCenter />
                         <span className="text-sm font-medium text-gray-500">Admin Portal</span>
                         <div className="w-8 h-8 rounded-full bg-afife-primary text-white flex items-center justify-center font-bold">A</div>
                     </div>
