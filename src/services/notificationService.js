@@ -70,3 +70,37 @@ export const sendAdminNotification = async (type, data) => {
         console.error("Error sending admin notification:", error);
     }
 };
+
+/**
+ * Sends a 6-digit OTP to a user's email.
+ * @param {string} email - Recipient email
+ * @param {string} otp - The 6-digit code
+ * @param {string} userName - The name of the user
+ */
+export const sendOTP = async (email, otp, userName) => {
+    try {
+        const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+        const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+        const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+        if (serviceId && templateId && publicKey) {
+            await emailjs.send(
+                serviceId,
+                templateId,
+                {
+                    to_email: email,
+                    activity_type: 'OTP VERIFICATION',
+                    message: `Your Afife Portal verification code is: ${otp}`,
+                    user_name: userName || 'User',
+                    user_email: email
+                },
+                publicKey
+            );
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error("Error sending OTP:", error);
+        return false;
+    }
+};

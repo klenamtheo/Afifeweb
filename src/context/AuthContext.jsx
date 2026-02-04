@@ -122,6 +122,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     const logout = () => {
+        sessionStorage.removeItem('otp_verified');
         return signOut(auth);
     };
 

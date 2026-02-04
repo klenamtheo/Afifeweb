@@ -20,6 +20,13 @@ const NativeRoute = ({ children }) => {
         return <Navigate to="/portal/login" replace />;
     }
 
+    const isOtpVerified = sessionStorage.getItem('otp_verified') === 'true';
+    if (!isOtpVerified && currentUser.email !== 'afifetownweb@gmail.com') {
+        // Force OTP verification if not session-verified (skip for special admin email if needed, 
+        // but here we apply it generally for portal)
+        return <Navigate to="/portal/login" replace />;
+    }
+
     if (userProfile.status !== 'approved') {
         return <PendingApproval />;
     }

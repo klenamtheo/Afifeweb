@@ -1,42 +1,97 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Lock, Mail, Loader, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { Lock, Mail, Loader, ArrowLeft, Eye, EyeOff, ShieldCheck, RefreshCw } from 'lucide-react';
 import afifeStreetView from '../../assets/afife_street_view.png';
+import { sendOTP } from '../../services/notificationService';
 
 import { getAuthErrorMessage } from '../../utils/errorUtils';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [otpInput, setOtpInput] = useState('');
+    const [generatedOtp, setGeneratedOtp] = useState('');
+    const [step, setStep] = useState(1); // 1: Login, 2: OTP
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const { login, currentUser, userProfile } = useAuth();
+    const { login, currentUser, userProfile, logout } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (currentUser && userProfile) {
-            if (userProfile.role === 'native') {
-                navigate('/portal/dashboard');
+        if (currentUser && userProfile && step === 1) {
+            // If already logged in but not in OTP step, 
+            // we should technically decide if we want to force OTP or just redirect.
+            // For security, if they just refreshed, they might need to re-verify OTP.
+            // But let's handle the initial login flow first.
+            if (userProfile.role === 'native' && userProfile.status === 'approved') {
+                // navigate('/portal/dashboard');
             } else if (currentUser.email === 'afifetownweb@gmail.com') {
                 navigate('/admin/dashboard');
             }
         }
-    }, [currentUser, userProfile, navigate]);
+    }, [currentUser, userProfile, navigate, step]);
 
-    const handleSubmit = async (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
 
         try {
-            await login(email, password);
-            // Redirection is handled by the useEffect above
+            const res = await login(email, password);
+
+            // Generate 6-digit OTP
+            const otp = Math.floor(100000 + Math.random() * 900000).toString();
+            setGeneratedOtp(otp);
+
+            // Send OTP
+            // We need the user's name from the profile, but at this point it might be loading
+            // So we'll try to get it or just use "Native"
+            const success = await sendOTP(email, otp, 'Afife Native');
+
+            if (success) {
+                setStep(2);
+            } else {
+                setError('Failed to send verification code. Please try again.');
+            }
         } catch (err) {
             setError(getAuthErrorMessage(err));
             console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleVerifyOTP = (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        if (otpInput === generatedOtp) {
+            sessionStorage.setItem('otp_verified', 'true');
+            if (userProfile?.role === 'native') {
+                navigate('/portal/dashboard');
+            } else {
+                navigate('/admin/dashboard');
+            }
+        } else {
+            setError('Invalid verification code. Please check your email.');
+            setLoading(false);
+        }
+    };
+
+    const handleBackToLogin = async () => {
+        setLoading(true);
+        try {
+            await logout();
+            setStep(1);
+            setOtpInput('');
+            setGeneratedOtp('');
+            setError('');
+        } catch (err) {
+            console.error("Logout error:", err);
+        } finally {
             setLoading(false);
         }
     };
@@ -63,77 +118,129 @@ const Login = () => {
                 </Link>
 
                 <div className="w-full max-w-md mx-auto">
-                    <div className="mb-10 font-heading">
-                        <h2 className="text-3xl font-black mb-2" style={{ color: 'var(--text-main)' }}>Login</h2>
-                        <p style={{ color: 'var(--text-muted)' }}>Please sign in to your verified account.</p>
-                    </div>
-
-                    {error && (
-                        <div className="bg-red-50 text-red-500 p-4 rounded-lg mb-6 text-sm flex items-center gap-2">
-                            <Lock size={16} /> {error}
-                        </div>
-                    )}
-
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-bold mb-2" style={{ color: 'var(--text-main)' }}>Email Address</label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" style={{ color: 'var(--text-muted)' }}>
-                                    <Mail size={20} />
-                                </div>
-                                <input
-                                    type="email"
-                                    required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 border rounded-full focus:ring-2 focus:ring-afife-primary/20 focus:border-afife-primary outline-none transition-all"
-                                    style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-color)', color: 'var(--text-main)' }}
-                                    placeholder="your@email.com"
-                                />
+                    {step === 1 ? (
+                        <>
+                            <div className="mb-10 font-heading">
+                                <h2 className="text-3xl font-black mb-2" style={{ color: 'var(--text-main)' }}>Login</h2>
+                                <p style={{ color: 'var(--text-muted)' }}>Please sign in to your verified account.</p>
                             </div>
-                        </div>
 
-                        <div>
-                            <label className="block text-sm font-bold mb-2" style={{ color: 'var(--text-main)' }}>Password</label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" style={{ color: 'var(--text-muted)' }}>
-                                    <Lock size={20} />
+                            {error && (
+                                <div className="bg-red-50 text-red-500 p-4 rounded-lg mb-6 text-sm flex items-center gap-2">
+                                    <Lock size={16} /> {error}
                                 </div>
-                                <input
-                                    type={showPassword ? 'text' : 'password'}
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full pl-10 pr-12 py-3 border rounded-full focus:ring-2 focus:ring-afife-primary/20 focus:border-afife-primary outline-none transition-all"
-                                    style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-color)', color: 'var(--text-main)' }}
-                                    placeholder="••••••••"
-                                />
+                            )}
+
+                            <form onSubmit={handleLogin} className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-bold mb-2" style={{ color: 'var(--text-main)' }}>Email Address</label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" style={{ color: 'var(--text-muted)' }}>
+                                            <Mail size={20} />
+                                        </div>
+                                        <input
+                                            type="email"
+                                            required
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            className="w-full pl-10 pr-4 py-3 border rounded-full focus:ring-2 focus:ring-afife-primary/20 focus:border-afife-primary outline-none transition-all"
+                                            style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-color)', color: 'var(--text-main)' }}
+                                            placeholder="your@email.com"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-bold mb-2" style={{ color: 'var(--text-main)' }}>Password</label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" style={{ color: 'var(--text-muted)' }}>
+                                            <Lock size={20} />
+                                        </div>
+                                        <input
+                                            type={showPassword ? 'text' : 'password'}
+                                            required
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            className="w-full pl-10 pr-12 py-3 border rounded-full focus:ring-2 focus:ring-afife-primary/20 focus:border-afife-primary outline-none transition-all"
+                                            style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-color)', color: 'var(--text-main)' }}
+                                            placeholder="••••••••"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute inset-y-0 right-0 pr-3 flex items-center transition-colors"
+                                            style={{ color: 'var(--text-muted)' }}
+                                        >
+                                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-afife-primary text-white py-4 rounded-full font-bold hover:bg-afife-primary/90 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-afife-primary/30"
+                                >
+                                    {loading ? <Loader className="animate-spin" size={20} /> : 'Sign In'}
+                                </button>
+                            </form>
+
+                            <div className="mt-8 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
+                                Don't have an account yet?{' '}
+                                <Link to="/portal/register" className="text-afife-primary font-bold hover:underline">
+                                    Register as a Native
+                                </Link>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="mb-10 font-heading">
+                                <div className="w-16 h-16 bg-afife-primary/10 rounded-2xl flex items-center justify-center mb-6 text-afife-primary">
+                                    <ShieldCheck size={32} />
+                                </div>
+                                <h2 className="text-3xl font-black mb-2" style={{ color: 'var(--text-main)' }}>Verify Identity</h2>
+                                <p style={{ color: 'var(--text-muted)' }}>We've sent a 6-digit verification code to <span className="text-afife-primary font-bold">{email}</span></p>
+                            </div>
+
+                            {error && (
+                                <div className="bg-red-50 text-red-500 p-4 rounded-lg mb-6 text-sm flex items-center gap-2">
+                                    <Lock size={16} /> {error}
+                                </div>
+                            )}
+
+                            <form onSubmit={handleVerifyOTP} className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-bold mb-2" style={{ color: 'var(--text-main)' }}>Verification Code</label>
+                                    <input
+                                        type="text"
+                                        maxLength={6}
+                                        required
+                                        value={otpInput}
+                                        onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
+                                        className="w-full px-6 py-4 border rounded-full focus:ring-2 focus:ring-afife-primary/20 focus:border-afife-primary outline-none transition-all text-center text-2xl font-black tracking-[0.5em]"
+                                        style={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-color)', color: 'var(--text-main)' }}
+                                        placeholder="000000"
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-afife-primary text-white py-4 rounded-full font-bold hover:bg-afife-primary/90 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-afife-primary/30"
+                                >
+                                    {loading ? <Loader className="animate-spin" size={20} /> : 'Verify & Access'}
+                                </button>
+
                                 <button
                                     type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute inset-y-0 right-0 pr-3 flex items-center transition-colors"
-                                    style={{ color: 'var(--text-muted)' }}
+                                    onClick={handleBackToLogin}
+                                    className="w-full py-4 rounded-full font-bold text-gray-500 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
                                 >
-                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    <RefreshCw size={18} /> Back to Login
                                 </button>
-                            </div>
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full bg-afife-primary text-white py-4 rounded-full font-bold hover:bg-afife-primary/90 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-afife-primary/30"
-                        >
-                            {loading ? <Loader className="animate-spin" size={20} /> : 'Sign In'}
-                        </button>
-                    </form>
-
-                    <div className="mt-8 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
-                        Don't have an account yet?{' '}
-                        <Link to="/portal/register" className="text-afife-primary font-bold hover:underline">
-                            Register as a Native
-                        </Link>
-                    </div>
+                            </form>
+                        </>
+                    )}
                 </div>
             </div>
         </div>
