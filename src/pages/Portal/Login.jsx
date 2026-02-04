@@ -58,7 +58,7 @@ const Login = () => {
 
             {/* Form Side */}
             <div className="w-full lg:w-1/2 flex flex-col justify-center p-8 md:p-12 lg:p-24 relative">
-                <Link to="/" className="absolute top-8 left-8 flex items-center gap-2 font-medium transition-colors hover:text-afife-primary" style={{ color: 'var(--text-muted)' }}>
+                <Link to="/" className="lg:absolute lg:top-8 lg:left-8 mb-8 lg:mb-0 self-start flex items-center gap-2 font-medium transition-colors hover:text-afife-primary" style={{ color: 'var(--text-muted)' }}>
                     <ArrowLeft size={20} /> Back to Website
                 </Link>
 

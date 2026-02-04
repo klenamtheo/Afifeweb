@@ -11,6 +11,7 @@ import {
     increment,
     serverTimestamp
 } from 'firebase/firestore';
+import { sendAdminNotification } from '../services/notificationService';
 import { MessageSquare, ThumbsUp, Send, User, Calendar, Loader, Lightbulb, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -49,6 +50,13 @@ const Suggestions = () => {
                 createdAt: serverTimestamp()
             });
             setFormData({ name: '', suggestion: '', category: 'General' });
+
+            // Send admin notification
+            await sendAdminNotification('suggestion', {
+                message: `New community suggestion from ${formData.name || 'Anonymous'}: "${formData.suggestion.substring(0, 100)}${formData.suggestion.length > 100 ? '...' : ''}"`,
+                userName: formData.name || 'Anonymous',
+                category: formData.category
+            });
         } catch (error) {
             console.error("Error adding suggestion:", error);
         } finally {

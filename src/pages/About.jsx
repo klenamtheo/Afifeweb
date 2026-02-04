@@ -14,7 +14,7 @@ const About = () => {
                         Our Journey & Heritage
                     </motion.h1>
                     <p className="text-lg md:text-xl opacity-90 max-w-2xl mx-auto">
-                        Discover the origins, the people, and the enduring spirit of Afife.
+                        Discover the origins, the people and the enduring spirit of Afife.
                     </p>
                 </div>
                 <div className="absolute top-0 left-0 w-full h-full bg-[url('https://images.unsplash.com/photo-1599908680371-b0e79dc0248c?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>

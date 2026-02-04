@@ -6,6 +6,7 @@ import { Briefcase, Megaphone, Calendar, MapPin, DollarSign, Clock, CheckCircle,
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
+import { sendAdminNotification } from '../services/notificationService';
 
 const JobsAds = () => {
     const [jobs, setJobs] = useState([]);
@@ -91,6 +92,14 @@ const JobsAds = () => {
             success("Application submitted successfully!");
             setIsApplying(false);
             setApplicationForm({ fullName: '', email: '', phone: '', message: '' });
+
+            // Send admin notification
+            await sendAdminNotification('application', {
+                message: `New job application for "${selectedJob.title}" from ${applicationForm.fullName}`,
+                userName: applicationForm.fullName,
+                email: applicationForm.email,
+                jobTitle: selectedJob.title
+            });
         } catch (err) {
             console.error("Apply Error:", err);
             error("Failed to submit application");
@@ -115,7 +124,7 @@ const JobsAds = () => {
                         transition={{ delay: 0.1 }}
                         className="text-white/80 max-w-2xl mx-auto text-lg"
                     >
-                        Explore career opportunities, local businesses, and community announcements in one place.
+                        Explore career opportunities, local businesses and community announcements in one place.
                     </motion.p>
                 </div>
             </header>

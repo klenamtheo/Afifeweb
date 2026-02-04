@@ -39,7 +39,7 @@ const Skills = () => {
         {
             id: 1,
             title: "Remote Coding",
-            description: "Learn web development, data science, and app creation from global mentors.",
+            description: "Learn web development, data science and app creation from global mentors.",
             icon: <Code size={32} className="text-afife-primary" />,
             features: ["HTML/CSS/JS/React", "Python & Data", "Mobile Apps"],
             color: "bg-blue-50"
@@ -81,7 +81,7 @@ const Skills = () => {
                         transition={{ delay: 0.1 }}
                         className="text-lg md:text-xl text-blue-50 max-w-2xl mx-auto mb-10"
                     >
-                        Bridging the gap between Afife and the world. Unlock your potential with remote learning opportunities in coding, languages, and modern trades.
+                        Bridging the gap between Afife and the world. Unlock your potential with remote learning opportunities in coding, languages and modern trades.
                     </motion.p>
                     <motion.a
                         href="#signup"

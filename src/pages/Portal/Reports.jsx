@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { submitFormToFirestore } from '../../services/formService';
 import { AlertTriangle, MapPin, Loader, CheckCircle, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { sendAdminNotification } from '../../services/notificationService';
 import { motion } from 'framer-motion';
 import { logActivity } from '../../utils/activityLogger';
 import { uploadImage } from '../../services/imageService';
@@ -63,6 +64,15 @@ const Reports = () => {
                 'report',
                 description.substring(0, 50) + (description.length > 50 ? '...' : '')
             );
+
+            // Send admin notification
+            await sendAdminNotification('report', {
+                message: `New issue reported: ${issueType} at ${location}`,
+                userName: userProfile.fullName,
+                issueType,
+                location,
+                description
+            });
 
             setStatus('success');
             setLocation('');

@@ -68,7 +68,7 @@ const Directory = () => {
                     >
                         <h1 className="font-heading text-5xl font-bold mb-4 tracking-tight">Afife Yellow Pages</h1>
                         <p className="text-xl opacity-90 max-w-2xl mx-auto font-light mb-12">
-                            Find trusted local experts, artisans, and businesses in our community.
+                            Find trusted local experts, artisans and businesses in our community.
                         </p>
 
                         {/* Search Bar */}

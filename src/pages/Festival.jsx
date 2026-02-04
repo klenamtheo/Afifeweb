@@ -44,10 +44,10 @@ const Festival = () => {
         const calculateDaysLeft = () => {
             const now = new Date();
             const currentYear = now.getFullYear();
-            let targetDate = new Date(currentYear, 1, 1);
+            let targetDate = new Date(currentYear, 1, 7);
 
             if (now > targetDate) {
-                targetDate = new Date(currentYear + 1, 1, 1);
+                targetDate = new Date(currentYear + 1, 1, 7);
             }
 
             const difference = targetDate.getTime() - now.getTime();

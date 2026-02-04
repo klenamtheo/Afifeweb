@@ -1,5 +1,5 @@
 import { motion, AnimatePresence, useSpring, useTransform, useInView } from 'framer-motion';
-import { ArrowRight, Calendar, Users, Heart, Clock, MapPin, TrendingUp, ShoppingBag, Quote, Info, ExternalLink, UserCheck, Baby } from 'lucide-react';
+import { ArrowRight, Calendar, Users, Heart, Clock, MapPin, TrendingUp, ShoppingBag, Quote, Info, ExternalLink, UserCheck, Baby, Bell, FileText, AlertTriangle, Vote, UserCircle, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { db } from '../firebase';
@@ -131,14 +131,14 @@ const Home = () => {
     return (
         <div className="bg-afife-bg min-h-screen">
             {/* Hero Section */}
-            <section className="relative h-[90vh] flex items-center justify-center overflow-hidden">
+            <section className="relative min-h-[90vh] md:h-[90vh] flex items-center justify-center overflow-hidden py-20 md:py-0">
                 {/* Background Image - Aerial View of Afife */}
                 <div className="absolute inset-0 z-0">
                     <div className="absolute inset-0 bg-black/40 z-10"></div>
                     <img src={streetview} alt="Aerial view of Afife in Volta Region" className="w-full h-full object-cover" />
                 </div>
 
-                <div className="container mx-auto px-4 relative z-10 text-center text-white">
+                <div className="container mx-auto px-4 relative z-10 text-center text-white pt-24 md:pt-0">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -148,7 +148,7 @@ const Home = () => {
                             Welcome to <span className="text-afife-secondary">Afife</span>
                         </h1>
                         <p className="text-lg md:text-2xl font-light max-w-2xl mx-auto mb-10 text-gray-200">
-                            A vibrant community embracing heritage, growth, and unity. Discover our culture, connect with our people, and build our future.
+                            A vibrant community embracing heritage, growth and unity. Discover our culture, connect with our people and build our future.
                         </p>
                         <div className="flex flex-col md:flex-row gap-4 justify-center">
                             <Link to="/about" className="px-8 py-4 bg-afife-secondary text-afife-accent font-bold rounded-lg hover:bg-white transition-all transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2">
@@ -662,6 +662,122 @@ const Home = () => {
                                 </motion.div>
                             )}
                         </AnimatePresence>
+                    </div>
+                </div>
+            </section>
+
+            {/* Portal Services Section */}
+            <section className="py-24 relative overflow-hidden">
+                {/* Background Decor */}
+                <div className="absolute top-0 left-0 w-full h-full bg-afife-primary/[0.02] -z-10"></div>
+                <div className="absolute -top-24 -right-24 w-96 h-96 bg-afife-secondary/10 rounded-full blur-3xl -z-10"></div>
+                <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-afife-primary/10 rounded-full blur-3xl -z-10"></div>
+
+                <div className="container mx-auto px-4">
+                    <div className="max-w-3xl mx-auto text-center mb-16 px-4">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                        >
+                            <span className="text-afife-secondary font-black uppercase tracking-[0.2em] text-xs mb-3 block">Digital Governance</span>
+                            <h2 className="font-heading text-4xl md:text-5xl font-bold text-afife-accent mb-6 leading-tight">Native Portal Services</h2>
+                            <p className="text-gray-500 text-lg leading-relaxed">
+                                Our community is moving forward with digital services designed to make interaction with the Traditional Council and town administration seamless and transparent.
+                            </p>
+                        </motion.div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {[
+                            {
+                                icon: <Bell className="text-red-500" />,
+                                title: "Real-time Alerts",
+                                desc: "Receive immediate notifications about town crier announcements, emergency updates, and community news directly on your device.",
+                                color: "bg-red-50"
+                            },
+                            {
+                                icon: <Calendar className="text-blue-500" />,
+                                title: "Town Meetings",
+                                desc: "Stay informed about upcoming community gatherings, view agendas, and join virtual town hall sessions specifically for natives.",
+                                color: "bg-blue-50"
+                            },
+                            {
+                                icon: <FileText className="text-afife-primary" />,
+                                title: "Digital Permits",
+                                desc: "Apply for building permits, business licenses, and event authorizations online without visiting the council office.",
+                                color: "bg-green-50"
+                            },
+                            {
+                                icon: <AlertTriangle className="text-orange-500" />,
+                                title: "Citizen Reporting",
+                                desc: "Report community issues like water leaks, road damage, or security concerns directly to the relevant authorities for quick action.",
+                                color: "bg-orange-50"
+                            },
+                            {
+                                icon: <Vote className="text-purple-500" />,
+                                title: "Community Polls",
+                                desc: "Have your voice heard on local initiatives and development projects. Participate in democratic decision-making for our town.",
+                                color: "bg-purple-50"
+                            },
+                            {
+                                icon: <ShieldCheck className="text-afife-secondary" />,
+                                title: "Native Verification",
+                                desc: "Securely manage your native status, access exclusive heritage resources, and participate in community-only benefits via your profile.",
+                                color: "bg-yellow-50"
+                            }
+                        ].map((service, idx) => (
+                            <motion.div
+                                key={idx}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: idx * 0.1 }}
+                                whileHover={{ y: -8, shadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}
+                                className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:border-afife-primary/20 transition-all flex flex-col group"
+                            >
+                                <div className={`w-14 h-14 ${service.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                                    {service.icon}
+                                </div>
+                                <h3 className="font-heading text-xl font-bold mb-3 text-afife-accent group-hover:text-afife-primary transition-colors">{service.title}</h3>
+                                <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                                    {service.desc}
+                                </p>
+                                <div className="pt-4 border-t border-gray-50 mt-auto">
+                                    <span className="text-afife-primary text-xs font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                                        Learn More <ArrowRight size={14} />
+                                    </span>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+
+                    <div className="mt-20 text-center">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            className="bg-afife-primary rounded-[3rem] p-10 md:p-16 relative overflow-hidden shadow-2xl"
+                        >
+                            {/* Accent graphics */}
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20"></div>
+                            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-10 -mb-10"></div>
+
+                            <div className="relative z-10 max-w-2xl mx-auto">
+                                <h3 className="font-heading text-3xl md:text-4xl font-bold text-white mb-6">Ready to join the digital portal?</h3>
+                                <p className="text-white/80 text-lg mb-10 leading-relaxed">
+                                    Sign up today to verify your status and start accessing all digital services provided by the Afife Traditional Council.
+                                </p>
+                                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                    <Link to="/portal/register" className="px-10 py-5 bg-white text-afife-primary font-bold rounded-2xl hover:bg-afife-secondary hover:text-afife-accent transition-all transform hover:-translate-y-1 shadow-xl text-lg">
+                                        Register as a Native
+                                    </Link>
+                                    <Link to="/portal/login" className="px-10 py-5 bg-afife-primary-dark/50 border border-white/20 text-white font-bold rounded-2xl hover:bg-white/10 transition-all text-lg">
+                                        Access Login
+                                    </Link>
+                                </div>
+                            </div>
+                        </motion.div>
                     </div>
                 </div>
             </section>

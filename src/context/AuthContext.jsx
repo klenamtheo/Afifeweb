@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db } from '../firebase';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
+import { sendAdminNotification } from '../services/notificationService';
 
 const AuthContext = createContext();
 
@@ -96,7 +97,7 @@ export const AuthProvider = ({ children }) => {
 
     const registerNative = async (email, password, fullName, phoneNumber, location) => {
         const res = await createUserWithEmailAndPassword(auth, email, password);
-        await setDoc(doc(db, 'users', res.user.uid), {
+        const userData = {
             uid: res.user.uid,
             email,
             fullName,
@@ -105,7 +106,18 @@ export const AuthProvider = ({ children }) => {
             role: 'native',
             status: 'pending',
             createdAt: serverTimestamp()
+        };
+        await setDoc(doc(db, 'users', res.user.uid), userData);
+
+        // Send admin notification
+        await sendAdminNotification('registration', {
+            message: `New native registration: ${fullName}`,
+            userName: fullName,
+            email: email,
+            location: location,
+            phoneNumber: phoneNumber
         });
+
         return res;
     }
 

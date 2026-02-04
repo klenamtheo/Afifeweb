@@ -53,7 +53,7 @@ const Marketplace = () => {
                         Afife <span className="text-afife-secondary">Marketplace</span>
                     </h1>
                     <p className="text-xl md:text-2xl font-light opacity-90 max-w-2xl mx-auto mb-8">
-                        Discover fresh farm produce, handmade crafts, and professional services from our community.
+                        Discover fresh farm produce, handmade crafts and professional services from our community.
                     </p>
                 </div>
             </section>

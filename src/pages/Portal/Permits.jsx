@@ -4,6 +4,7 @@ import { db } from '../../firebase';
 import { collection, addDoc, query, where, onSnapshot, orderBy, serverTimestamp } from 'firebase/firestore';
 import { FileCheck, Plus, Clock, XCircle, CheckCircle, Loader } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { sendAdminNotification } from '../../services/notificationService';
 import { motion } from 'framer-motion';
 import { logActivity } from '../../utils/activityLogger';
 
@@ -64,6 +65,14 @@ const Permits = () => {
 
             setShowForm(false);
             setPurpose('');
+
+            // Send admin notification
+            await sendAdminNotification('permit', {
+                message: `New ${type} permit application from ${userProfile.fullName}`,
+                userName: userProfile.fullName,
+                permitType: type,
+                purpose: purpose
+            });
         } catch (error) {
             console.error("Error asking for permit:", error);
         } finally {
