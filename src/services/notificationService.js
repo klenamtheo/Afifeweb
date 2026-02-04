@@ -84,7 +84,7 @@ export const sendOTP = async (email, otp, userName) => {
         const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
         if (serviceId && templateId && publicKey) {
-            await emailjs.send(
+            const response = await emailjs.send(
                 serviceId,
                 templateId,
                 {
@@ -96,6 +96,7 @@ export const sendOTP = async (email, otp, userName) => {
                 },
                 publicKey
             );
+            console.log('OTP EmailJS Response:', response.status, response.text);
             return true;
         }
         return false;

@@ -125,7 +125,7 @@ const NotificationCenter = () => {
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute right-0 mt-3 w-80 md:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-[100]"
+                        className="fixed md:absolute inset-x-4 md:inset-x-auto md:right-0 top-20 md:top-full md:mt-3 md:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-[100]"
                     >
                         <div className="p-4 border-b border-gray-50 flex items-center justify-between bg-white sticky top-0">
                             <div>
