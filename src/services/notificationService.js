@@ -1,6 +1,7 @@
 
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import emailjs from '@emailjs/browser';
 
 /**
  * Sends a notification to the admin dashboard and triggers an email alert.
@@ -10,6 +11,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 export const sendAdminNotification = async (type, data) => {
     try {
         const timestamp = serverTimestamp();
+        const adminEmail = 'afifetownweb@gmail.com';
 
         // 1. Store in admin_notifications for the dashboard
         await addDoc(collection(db, 'admin_notifications'), {
@@ -19,9 +21,9 @@ export const sendAdminNotification = async (type, data) => {
             createdAt: timestamp
         });
 
-        // 2. Trigger Email (compatible with Firebase Trigger Email extension)
+        // 2. Trigger Email via Firebase "Trigger Email" extension
         await addDoc(collection(db, 'mail'), {
-            to: 'klenamtheophilus@gmail.com',
+            to: adminEmail,
             message: {
                 subject: `Afife Portal: New ${type.charAt(0).toUpperCase() + type.slice(1)} Update`,
                 html: `
@@ -42,7 +44,28 @@ export const sendAdminNotification = async (type, data) => {
             }
         });
 
-        console.log(`Admin notification sent for type: ${type}`);
+        // 3. Fallback/Alternative: EmailJS (if configured in .env)
+        const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+        const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+        const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+        if (serviceId && templateId && publicKey) {
+            await emailjs.send(
+                serviceId,
+                templateId,
+                {
+                    to_email: adminEmail,
+                    activity_type: type.toUpperCase(),
+                    message: data.message,
+                    user_name: data.userName || 'N/A',
+                    user_email: data.email || 'N/A'
+                },
+                publicKey
+            );
+            console.log('EmailJS notification sent successfully.');
+        }
+
+        console.log(`Admin notification recorded for type: ${type}`);
     } catch (error) {
         console.error("Error sending admin notification:", error);
     }
