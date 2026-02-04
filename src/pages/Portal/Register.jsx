@@ -164,6 +164,14 @@ const Register = () => {
                             <p className="text-xs mt-1 ml-1" style={{ color: 'var(--text-muted)' }}>Please enter your exact house location in the town.</p>
                         </div>
 
+                        <div className="bg-yellow-50 border border-yellow-100 p-4 rounded-xl mb-6 text-xs text-yellow-800 flex gap-3">
+                            <ShieldCheck size={18} className="shrink-0 text-yellow-600" />
+                            <div>
+                                <p className="font-bold mb-1">Important: Verification Required</p>
+                                <p>The email you provide below will be used to send a **6-digit verification code (OTP)** every time you attempt to log in. Please ensure it is a valid email you have access to.</p>
+                            </div>
+                        </div>
+
                         <div>
                             <label className="block text-sm font-bold mb-1" style={{ color: 'var(--text-main)' }}>Email Address</label>
                             <div className="relative">

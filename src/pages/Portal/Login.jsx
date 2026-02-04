@@ -4,6 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import { Lock, Mail, Loader, ArrowLeft, Eye, EyeOff, ShieldCheck, RefreshCw } from 'lucide-react';
 import afifeStreetView from '../../assets/afife_street_view.png';
 import { sendOTP } from '../../services/notificationService';
+import { db } from '../../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 import { getAuthErrorMessage } from '../../utils/errorUtils';
 
@@ -41,14 +43,23 @@ const Login = () => {
         try {
             const res = await login(email, password);
 
+            // Check account status before proceeding to OTP
+            const userDoc = await getDoc(doc(db, 'users', res.user.uid));
+            const userData = userDoc.exists() ? userDoc.data() : null;
+
+            if (!userData || userData.status !== 'approved') {
+                // Account not approved, log them out immediately and show generic error
+                await logout();
+                setError('Invalid email and or password'); // Obfuscated error message
+                return;
+            }
+
             // Generate 6-digit OTP
             const otp = Math.floor(100000 + Math.random() * 900000).toString();
             setGeneratedOtp(otp);
 
             // Send OTP
-            // We need the user's name from the profile, but at this point it might be loading
-            // So we'll try to get it or just use "Native"
-            const success = await sendOTP(email, otp, 'Afife Native');
+            const success = await sendOTP(email, otp, userData.fullName || 'Afife Native');
 
             if (success) {
                 setStep(2);
