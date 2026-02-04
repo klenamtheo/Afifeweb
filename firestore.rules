@@ -125,6 +125,18 @@ service cloud.firestore {
         allow read: if isAdmin() || isOwner(userId);
       }
     }
+
+    // Admin Notifications
+    match /admin_notifications/{document=**} {
+      allow create: if request.auth != null;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Mail Collection (for Trigger Email extension)
+    match /mail/{document=**} {
+      allow create: if request.auth != null;
+      allow read, write: if isAdmin();
+    }
     
     // Default Deny
     match /{document=**} {

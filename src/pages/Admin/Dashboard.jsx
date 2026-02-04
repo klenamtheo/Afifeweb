@@ -53,7 +53,7 @@ const Dashboard = () => {
                 });
 
                 // Real-time Activity Listeners
-                const collections = ['news', 'events', 'market', 'projects', 'submissions', 'alerts', 'jobs', 'adverts', 'job_applications'];
+                const collections = ['news', 'events', 'market', 'projects', 'submissions', 'alerts', 'jobs', 'adverts', 'job_applications', 'admin_notifications'];
                 const activityTypes = {
                     news: { label: 'News', icon: <FileText size={14} />, color: 'text-green-600', bg: 'bg-green-50' },
                     events: { label: 'Event', icon: <Calendar size={14} />, color: 'text-purple-600', bg: 'bg-purple-50' },
@@ -63,7 +63,8 @@ const Dashboard = () => {
                     alerts: { label: 'Alert', icon: <TrendingUp size={14} />, color: 'text-red-600', bg: 'bg-red-50' },
                     jobs: { label: 'Job', icon: <Briefcase size={14} />, color: 'text-indigo-600', bg: 'bg-indigo-50' },
                     adverts: { label: 'Advert', icon: <Megaphone size={14} />, color: 'text-pink-600', bg: 'bg-pink-50' },
-                    job_applications: { label: 'Application', icon: <Users size={14} />, color: 'text-cyan-600', bg: 'bg-cyan-50' }
+                    job_applications: { label: 'Application', icon: <Users size={14} />, color: 'text-cyan-600', bg: 'bg-cyan-50' },
+                    admin_notifications: { label: 'Notification', icon: <TrendingUp size={14} />, color: 'text-afife-primary', bg: 'bg-afife-secondary/10' }
                 };
 
                 const currentActivities = {};
@@ -171,7 +172,7 @@ const Dashboard = () => {
                                         </span>
                                     </div>
                                     <h4 className="font-bold text-gray-800 truncate">
-                                        {activity.title || activity.name || activity.businessName || activity.subject || activity.category || 'Untitled Activity'}
+                                        {activity.message || activity.title || activity.name || activity.businessName || activity.subject || activity.category || 'Untitled Activity'}
                                     </h4>
                                 </div>
                                 <div className="text-gray-300 group-hover:text-afife-primary">
