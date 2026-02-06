@@ -45,19 +45,25 @@ export const uploadImage = async (file, folder) => {
         }
     }
 
-    // Fallback/Legacy: Firebase Storage
-    const timestamp = Date.now();
-    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
-    const fileName = `${timestamp}_${sanitizedName}`;
-    const storageRef = ref(storage, `${folder}/${fileName}`);
-
+    // Fallback: Firebase Storage
+    // NOTE: If you are on Spark plan, this will likely fail with permissions error 
+    // if Storage is not enabled or configured.
     try {
+        const timestamp = Date.now();
+        const sanitizedName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+        const fileName = `${timestamp}_${sanitizedName}`;
+        const storageRef = ref(storage, `${folder}/${fileName}`);
+
         console.log(`[imageService] Starting uploadBytes to ${folder}/${fileName}...`);
         const snapshot = await uploadBytes(storageRef, file);
         const downloadURL = await getDownloadURL(snapshot.ref);
         return downloadURL;
     } catch (error) {
-        console.error("[imageService] ERROR during upload:", error);
+        console.error("[imageService] ERROR during upload fallback:", error);
+        // Provide more helpful message for Spark plan users
+        if (error.code === 'storage/unauthorized' || error.message?.includes('permission')) {
+            throw new Error("Upload failed. ImgBB failed and Firebase Storage is unauthorized (Spark plan). Check your ImgBB API key.");
+        }
         throw error;
     }
 };
