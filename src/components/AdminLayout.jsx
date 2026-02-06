@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FileText, Calendar, ShoppingBag, Briefcase, MessageSquare, LogOut, Menu, X, Phone, Bell, User } from 'lucide-react';
+import { LayoutDashboard, FileText, Calendar, ShoppingBag, Briefcase, MessageSquare, LogOut, Menu, X, Phone, Bell, User, Image } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
@@ -52,6 +52,7 @@ const AdminLayout = () => {
         { path: '/admin/news', name: 'News & Updates', icon: <FileText size={20} /> },
         { path: '/admin/events', name: 'Events', icon: <Calendar size={20} /> },
         { path: '/admin/market', name: 'Marketplace', icon: <ShoppingBag size={20} /> },
+        { path: '/admin/gallery', name: 'Gallery', icon: <Image size={20} /> },
         { path: '/admin/projects', name: 'Projects', icon: <Briefcase size={20} /> },
         { path: '/admin/directory', name: 'Yellow Pages', icon: <Phone size={20} /> },
         { path: '/admin/suggestions', name: "Voice Board", icon: <MessageSquare size={20} /> },

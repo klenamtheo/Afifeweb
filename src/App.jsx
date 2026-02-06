@@ -34,6 +34,7 @@ import AdminPermits from './pages/Admin/AdminPermits';
 import AdminRequests from './pages/Admin/AdminRequests';
 import AdminPolls from './pages/Admin/AdminPolls';
 import AdminApplications from './pages/Admin/AdminApplications';
+import AdminGallery from './pages/Admin/AdminGallery';
 import AdminLayout from './components/AdminLayout';
 
 import ProtectedRoute from './components/ProtectedRoute';
@@ -118,6 +119,7 @@ function App() {
                   <Route path="news" element={<AdminNews />} />
                   <Route path="events" element={<AdminEvents />} />
                   <Route path="market" element={<AdminMarket />} />
+                  <Route path="gallery" element={<AdminGallery />} />
                   <Route path="projects" element={<AdminProjects />} />
                   <Route path="directory" element={<AdminDirectory />} />
                   <Route path="suggestions" element={<AdminSuggestions />} />

@@ -1,5 +1,5 @@
 import { motion, AnimatePresence, useSpring, useTransform, useInView } from 'framer-motion';
-import { ArrowRight, Calendar, Users, Heart, Clock, MapPin, TrendingUp, ShoppingBag, Quote, Info, ExternalLink, UserCheck, Baby, Bell, FileText, AlertTriangle, Vote, UserCircle, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Calendar, Users, Heart, Clock, MapPin, TrendingUp, ShoppingBag, Quote, Info, ExternalLink, UserCheck, Baby, Bell, FileText, AlertTriangle, Vote, UserCircle, ShieldCheck, Loader, Image } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { db } from '../firebase';
@@ -29,6 +29,7 @@ const Home = () => {
     const [alerts, setAlerts] = useState([]);
     const [marketItems, setMarketItems] = useState([]);
     const [meetings, setMeetings] = useState([]);
+    const [gallery, setGallery] = useState([]);
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [stats, setStats] = useState({
@@ -43,6 +44,7 @@ const Home = () => {
     });
     const [currentEventIndex, setCurrentEventIndex] = useState(0);
     const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
+    const [currentGalleryIndex, setCurrentGalleryIndex] = useState(0);
     const [activeTab, setActiveTab] = useState('news');
     const [loading, setLoading] = useState(true);
 
@@ -65,6 +67,15 @@ const Home = () => {
     }, [news.length]);
 
     useEffect(() => {
+        if (gallery.length > 0) {
+            const interval = setInterval(() => {
+                setCurrentGalleryIndex((prev) => (prev + 1) % gallery.length);
+            }, 6000);
+            return () => clearInterval(interval);
+        }
+    }, [gallery.length]);
+
+    useEffect(() => {
         setLoading(true);
 
         const timeout = setTimeout(() => {
@@ -77,7 +88,8 @@ const Home = () => {
             events: query(collection(db, 'events'), orderBy('date', 'asc'), limit(3)),
             projects: query(collection(db, 'projects'), orderBy('createdAt', 'desc'), limit(3)),
             market: query(collection(db, 'market'), orderBy('createdAt', 'desc'), limit(4)),
-            meetings: query(collection(db, 'meetings'), orderBy('date', 'asc'))
+            meetings: query(collection(db, 'meetings'), orderBy('date', 'asc')),
+            gallery: query(collection(db, 'gallery'), orderBy('createdAt', 'desc'), limit(10))
         };
 
         const handleSnapError = (err, collectionName) => {
@@ -105,7 +117,10 @@ const Home = () => {
             }, (err) => handleSnapError(err, 'market')),
             onSnapshot(queries.meetings, (snap) => {
                 setMeetings(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-            }, (err) => handleSnapError(err, 'meetings'))
+            }, (err) => handleSnapError(err, 'meetings')),
+            onSnapshot(queries.gallery, (snap) => {
+                setGallery(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            }, (err) => handleSnapError(err, 'gallery'))
         ];
 
         // Real-time Stats Listeners
@@ -260,6 +275,8 @@ const Home = () => {
                     </motion.div>
                 </div>
             </section>
+
+
 
             {/* Community Hub Tabs Section */}
             <section className="py-20 bg-gray-50">
@@ -778,6 +795,75 @@ const Home = () => {
                                 </div>
                             </div>
                         </motion.div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Gallery Slideshow Section */}
+            <section className="py-20 bg-white text-gray-900 overflow-hidden relative">
+                <div className="absolute inset-0 opacity-5 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+                <div className="container mx-auto px-4 relative z-10">
+                    <div className="flex flex-col md:flex-row items-center justify-between mb-12">
+                        <div>
+                            <span className="text-afife-secondary font-bold uppercase tracking-wider text-sm">Visual Experience</span>
+                            <h2 className="font-heading text-4xl font-bold mt-2 text-afife-accent">Life in Afife</h2>
+                        </div>
+                        <div className="flex gap-4 mt-6 md:mt-0">
+                            <button
+                                onClick={() => setCurrentGalleryIndex(prev => (prev - 1 + gallery.length) % gallery.length)}
+                                className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:bg-afife-primary hover:text-white transition-all text-gray-400"
+                            >
+                                <ArrowRight className="rotate-180" size={20} />
+                            </button>
+                            <button
+                                onClick={() => setCurrentGalleryIndex(prev => (prev + 1) % gallery.length)}
+                                className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:bg-afife-primary hover:text-white transition-all text-gray-400"
+                            >
+                                <ArrowRight size={20} />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="relative h-[500px] w-full rounded-2xl overflow-hidden shadow-2xl bg-gray-100 border border-gray-100">
+                        <AnimatePresence mode="wait">
+                            {gallery.length > 0 ? (
+                                <motion.div
+                                    key={currentGalleryIndex}
+                                    initial={{ opacity: 0, scale: 1.1 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.7 }}
+                                    className="absolute inset-0"
+                                >
+                                    <img
+                                        src={gallery[currentGalleryIndex].imageUrl}
+                                        alt={gallery[currentGalleryIndex].title}
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90"></div>
+                                    <div className="absolute bottom-0 left-0 p-8 md:p-12 w-full">
+                                        <motion.div
+                                            initial={{ y: 20, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            transition={{ delay: 0.3 }}
+                                        >
+                                            <span className="bg-afife-secondary text-afife-accent text-xs font-black px-3 py-1 rounded uppercase tracking-widest mb-3 inline-block">
+                                                {gallery[currentGalleryIndex].category}
+                                            </span>
+                                            <h3 className="text-3xl md:text-5xl font-heading font-bold mb-3 text-white">{gallery[currentGalleryIndex].title}</h3>
+                                            {gallery[currentGalleryIndex].description && (
+                                                <p className="text-gray-300 text-lg max-w-2xl line-clamp-2">{gallery[currentGalleryIndex].description}</p>
+                                            )}
+                                        </motion.div>
+                                    </div>
+                                </motion.div>
+                            ) : (
+                                <div className="space-y-4 flex flex-col items-center justify-center h-full text-gray-400">
+                                    <Image size={48} className="opacity-20" />
+                                    <p>No images to display yet.</p>
+                                </div>
+                            )}
+                        </AnimatePresence>
                     </div>
                 </div>
             </section>

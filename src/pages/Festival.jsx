@@ -1,6 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, MapPin, Music, X, Clock, ChevronRight } from 'lucide-react';
+import { Calendar, MapPin, Music, X, Clock, ChevronRight, Loader } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { db } from '../firebase';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import Fes1 from '../assets/fes1.jpg';
 import Fest2 from '../assets/fest2.jpg';
 import Fest3 from '../assets/fest3.jpg';
@@ -37,8 +39,20 @@ const Festival = () => {
     ];
     // ==========================================
 
+
     const [daysLeft, setDaysLeft] = useState(0);
     const [showLineup, setShowLineup] = useState(false);
+    const [gallery, setGallery] = useState([]);
+    const [loadingGallery, setLoadingGallery] = useState(true);
+
+    useEffect(() => {
+        const q = query(collection(db, 'gallery'), orderBy('createdAt', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setGallery(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            setLoadingGallery(false);
+        });
+        return unsubscribe;
+    }, []);
 
     useEffect(() => {
         const calculateDaysLeft = () => {
@@ -137,21 +151,37 @@ const Festival = () => {
                     <p className="text-gray-500 mb-12 max-w-xl mx-auto">Relive the beautiful moments from previous Nyiglaza celebrations.</p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                        {FESTIVAL_IMAGES.gallery.map((img, i) => (
-                            <motion.div
-                                key={i}
-                                whileHover={{ scale: 1.02, y: -5 }}
-                                className="aspect-square rounded-2xl overflow-hidden relative group shadow-md"
-                            >
-                                <img src={img.url} alt={img.title} className="w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
-                                    <div className="text-white font-bold text-left">
-                                        <p className="text-xs text-afife-secondary uppercase tracking-widest mb-1">Moment</p>
-                                        <h4 className="text-lg">{img.title}</h4>
+                        {loadingGallery ? (
+                            <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-400">
+                                <Loader className="animate-spin mb-4" size={32} />
+                                <p>Loading gallery...</p>
+                            </div>
+                        ) : gallery.length === 0 ? (
+                            <div className="col-span-full text-center py-12 text-gray-400">
+                                <p>No gallery images uploaded yet.</p>
+                            </div>
+                        ) : (
+                            gallery.map((img) => (
+                                <motion.div
+                                    key={img.id}
+                                    whileHover={{ scale: 1.02, y: -5 }}
+                                    className="aspect-square rounded-2xl overflow-hidden relative group shadow-md bg-gray-100"
+                                >
+                                    <img src={img.imageUrl} alt={img.title} className="w-full h-full object-cover" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                                        <div className="text-white font-bold text-left">
+                                            {img.category && (
+                                                <p className="text-xs text-afife-secondary uppercase tracking-widest mb-1">{img.category}</p>
+                                            )}
+                                            <h4 className="text-lg line-clamp-2">{img.title}</h4>
+                                            {img.description && (
+                                                <p className="text-xs text-gray-300 mt-2 line-clamp-2">{img.description}</p>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            </motion.div>
-                        ))}
+                                </motion.div>
+                            ))
+                        )}
                     </div>
                 </div>
             </section>
